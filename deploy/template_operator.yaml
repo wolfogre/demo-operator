@@ -16,7 +16,7 @@ spec:
       containers:
         - name: demo-operator
           # Replace this with the built image name
-          image: reg.qiniu.com/wolfogre-public/demo-operator:$(VERSION)
+          image: REPLACE_IMAGE
           ports:
           - containerPort: 60000
             name: metrics
