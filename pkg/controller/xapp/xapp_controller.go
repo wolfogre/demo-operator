@@ -99,20 +99,20 @@ func (r *ReconcileXApp) Reconcile(request reconcile.Request) (reconcile.Result, 
 		return reconcile.Result{}, err
 	}
 
-	// Define a new Pod object
-	pod := newPodForCR(instance)
+	// Define a new Service object
+	headlessService := newHeadlessServiceForCR(instance)
 
 	// Set XApp instance as the owner and controller
-	if err := controllerutil.SetControllerReference(instance, pod, r.scheme); err != nil {
+	if err := controllerutil.SetControllerReference(instance, headlessService, r.scheme); err != nil {
 		return reconcile.Result{}, err
 	}
 
 	// Check if this Pod already exists
-	found := &corev1.Pod{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: pod.Name, Namespace: pod.Namespace}, found)
+	found := &corev1.Service{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: headlessService.Name, Namespace: headlessService.Namespace}, found)
 	if err != nil && errors.IsNotFound(err) {
-		reqLogger.Info("Creating a new Pod", "Pod.Namespace", pod.Namespace, "Pod.Name", pod.Name)
-		err = r.client.Create(context.TODO(), pod)
+		reqLogger.Info("Creating a new Headless Service", "Service.Namespace", headlessService.Namespace, "Service.Name", headlessService.Name)
+		err = r.client.Create(context.TODO(), headlessService)
 		if err != nil {
 			return reconcile.Result{}, err
 		}
@@ -124,29 +124,24 @@ func (r *ReconcileXApp) Reconcile(request reconcile.Request) (reconcile.Result, 
 	}
 
 	// Pod already exists - don't requeue
-	reqLogger.Info("Skip reconcile: Pod already exists", "Pod.Namespace", found.Namespace, "Pod.Name", found.Name)
+	reqLogger.Info("Skip reconcile: Headless Service already exists", "Service.Namespace", found.Namespace, "Service.Name", found.Name)
 	return reconcile.Result{}, nil
 }
 
-// newPodForCR returns a busybox pod with the same name/namespace as the cr
-func newPodForCR(cr *wolfogrev1alpha1.XApp) *corev1.Pod {
+func newHeadlessServiceForCR(cr *wolfogrev1alpha1.XApp) *corev1.Service {
 	labels := map[string]string{
-		"app": cr.Name,
+		"xapp": cr.Name,
 	}
-	return &corev1.Pod{
+	return &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      cr.Name + "-pod",
+			Name:      cr.Name + "-headless",
 			Namespace: cr.Namespace,
 			Labels:    labels,
 		},
-		Spec: corev1.PodSpec{
-			Containers: []corev1.Container{
-				{
-					Name:    "busybox",
-					Image:   "busybox",
-					Command: []string{"sleep", "3600"},
-				},
-			},
+		Spec: corev1.ServiceSpec{
+			Selector: labels,
+			ClusterIP: "None",
 		},
 	}
 }
+
