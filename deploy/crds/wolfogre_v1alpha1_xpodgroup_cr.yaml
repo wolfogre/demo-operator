@@ -1,7 +1,7 @@
 apiVersion: wolfogre.com/v1alpha1
-kind: XApp
+kind: XPodGroup
 metadata:
-  name: vivia
+  name: example-xpodgroup
 spec:
   # Add fields here
   size: 3

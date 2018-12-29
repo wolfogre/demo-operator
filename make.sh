@@ -14,5 +14,5 @@ VERSION=${MAIN_VERSION}.${SUB_VERSION}
 
 operator-sdk build reg.qiniu.com/wolfogre-public/demo-operator:${VERSION}
 docker push reg.qiniu.com/wolfogre-public/demo-operator:${VERSION}
-sed 's|REPLACE_IMAGE|reg.qiniu.com/wolfogre-public/demo-operator:$(VERSION)|g' deploy/template_operator.yaml > deploy/operator.yaml
+sed "s|REPLACE_IMAGE|reg.qiniu.com/wolfogre-public/demo-operator:${VERSION}|g" deploy/template_operator.yaml > deploy/operator.yaml
 

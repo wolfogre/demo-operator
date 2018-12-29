@@ -42,5 +42,6 @@ rules:
   - wolfogre.com
   resources:
   - '*'
+  - xpodgroups
   verbs:
   - '*'
